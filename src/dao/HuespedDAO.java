@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import modelo.Huesped;
 
@@ -45,6 +47,44 @@ public class HuespedDAO {
 			
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public List<Huesped> listar() {
+		List<Huesped> huespedes = new ArrayList<Huesped>();
+		
+		try {
+			PreparedStatement statement = con.prepareStatement(
+					"SELECT id, nombre, apellido, fecha_nacimiento, nacionalidad, telefono, id_reserva FROM huespedes");
+			
+			try (statement) {
+				statement.execute();
+				
+				buscarHuespedes(huespedes, statement);
+			}
+			
+			return huespedes;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void buscarHuespedes(List<Huesped> huespedes, PreparedStatement statement) throws SQLException {
+		ResultSet resultSet = statement.getResultSet();
+		try (resultSet){
+			while (resultSet.next()) {
+				Huesped huesped = new Huesped(
+						resultSet.getInt(1),
+						resultSet.getString(2),
+						resultSet.getString(3),
+						resultSet.getDate(4),
+						resultSet.getString(5),
+						resultSet.getString(6),
+						resultSet.getInt(7));
+				
+				huespedes.add(huesped);
+			}
 		}
 	}
 
