@@ -12,7 +12,7 @@ public class HuespedController {
 	private HuespedDAO huespedDAO;
 
 	public HuespedController() {
-		this.huespedDAO = new HuespedDAO(new ConnectionFactory().recuperaConexion());
+		huespedDAO = new HuespedDAO(new ConnectionFactory().recuperaConexion());
 	}
 
 	public void guardar(Huesped huesped) {
@@ -20,12 +20,16 @@ public class HuespedController {
 	}
 
 	public List<Huesped> listar() {
-		return this.huespedDAO.listar();
+		return huespedDAO.listar();
 	}
 
 	public int modificar(String nombre, String apellido, Date fechaNacimiento, String nacionalidad, String telefono,
 			Integer idReserva, Integer id) {
-		return this.huespedDAO.modificar(nombre, apellido, fechaNacimiento, nacionalidad, telefono, idReserva, id);
+		return huespedDAO.modificar(nombre, apellido, fechaNacimiento, nacionalidad, telefono, idReserva, id);
+	}
+
+	public int eliminar(Integer id) {
+		return huespedDAO.eliminar(id);
 	}
 
 }

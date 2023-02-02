@@ -283,6 +283,25 @@ public class Busqueda extends JFrame {
 		btnEditar.add(lblEditar);
 
 		JPanel btnEliminar = new JPanel();
+		btnEliminar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				if(tbReservas.isVisible()) {
+					//System.out.println("Tabla de reservas activa");		
+					eliminarReserva();
+					limpiarTabla(modelo);
+					listarReservas();
+				} else if (tbHuespedes.isVisible()) {
+					//System.out.println("Tabla de huespedes activa");
+					eliminarHuesped();
+					limpiarTabla(modeloH);
+					listarHuespedes();	 
+				}
+							
+			}
+
+		});
 		btnEliminar.setLayout(null);
 		btnEliminar.setBackground(new Color(12, 138, 199));
 		btnEliminar.setBounds(767, 508, 122, 35);
@@ -369,6 +388,26 @@ public class Busqueda extends JFrame {
 		}
 	}
 	
+	private void eliminarHuesped() {
+		if(tieneFilaElegida(tbHuespedes)) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un registro de Huesped");
+			return;
+		}
+		
+		Optional.ofNullable(modeloH.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
+		.ifPresentOrElse(fila -> {
+			
+			Integer id = Integer.valueOf(modeloH.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+			
+			var filasModificadas = this.huespedController.eliminar(id);
+			
+			modeloH.removeRow(tbHuespedes.getSelectedRow());
+			
+			JOptionPane.showMessageDialog(this,
+                     String.format("%d item eliminado con éxito!", filasModificadas));
+         }, () -> JOptionPane.showMessageDialog(this, "Por favor, elije un item"));
+	}
+	
 	private void modificarReserva() {
 		if(tieneFilaElegida(tbReservas)) {
 			JOptionPane.showMessageDialog(this, "Por favor, elije un registro de reservas");
@@ -411,6 +450,26 @@ public class Busqueda extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void eliminarReserva() {
+		if(tieneFilaElegida(tbReservas)) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un registro de reservas");
+			return;
+		}
+		
+		Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn()))
+		.ifPresentOrElse(fila -> {
+			
+			Integer id = Integer.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 0).toString());
+			
+			var filasModificadas = this.reservaController.eliminar(id);
+			
+			modelo.removeRow(tbReservas.getSelectedRow());
+			
+			JOptionPane.showMessageDialog(this,
+                     String.format("%d item eliminado con éxito!", filasModificadas));
+         }, () -> JOptionPane.showMessageDialog(this, "Por favor, elije un item"));
 	}
 	
 }
