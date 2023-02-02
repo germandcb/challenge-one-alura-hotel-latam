@@ -18,9 +18,12 @@ import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.SystemColor;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Optional;
 import java.awt.event.ActionEvent;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
@@ -30,6 +33,7 @@ import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.Date;
 
 @SuppressWarnings("serial")
 public class Busqueda extends JFrame {
@@ -246,6 +250,25 @@ public class Busqueda extends JFrame {
 		lblBuscar.setFont(new Font("Roboto", Font.PLAIN, 18));
 
 		JPanel btnEditar = new JPanel();
+		btnEditar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				if(tbReservas.isVisible()) {
+					//System.out.println("Tabla de reservas activa");		
+					modificarReserva();
+					limpiarTabla(modelo);
+					listarReservas();
+				} else if (tbHuespedes.isVisible()) {
+					//System.out.println("Tabla de huespedes activa");
+					modificarHuesped();
+					limpiarTabla(modeloH);
+					listarHuespedes();	 
+				}
+							
+			}
+
+		});
 		btnEditar.setLayout(null);
 		btnEditar.setBackground(new Color(12, 138, 199));
 		btnEditar.setBounds(635, 508, 122, 35);
@@ -275,6 +298,10 @@ public class Busqueda extends JFrame {
 		setResizable(false);
 	}
 
+	protected void limpiarTabla(DefaultTableModel tmodel) {
+		tmodel.getDataVector().clear();
+	}
+
 	// Código que permite mover la ventana por la pantalla según la posición de "x"
 	// y "y"
 	private void headerMousePressed(java.awt.event.MouseEvent evt) {
@@ -286,6 +313,40 @@ public class Busqueda extends JFrame {
 		int x = evt.getXOnScreen();
 		int y = evt.getYOnScreen();
 		this.setLocation(x - xMouse, y - yMouse);
+	}
+	
+	private boolean tieneFilaElegida(JTable tb) {
+		return tb.getSelectedRowCount() == 0 || tb.getSelectedColumnCount() == 0;
+	}
+	
+	protected void modificarHuesped() {
+		if(tieneFilaElegida(tbHuespedes)) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un registro de huesped");
+			return;
+		}
+		
+		Optional.ofNullable(modeloH.getValueAt(tbHuespedes.getSelectedColumnCount(),  tbHuespedes.getSelectedRow()))
+		.ifPresentOrElse(fila -> {
+			Integer id = Integer.valueOf(modeloH.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+			String nombre = (String) modeloH.getValueAt(tbHuespedes.getSelectedRow(), 1);
+			String apellido = (String) modeloH.getValueAt(tbHuespedes.getSelectedRow(), 2);
+			Date fechaNacimiento = Date.valueOf(modeloH.getValueAt(tbHuespedes.getSelectedRow(), 3).toString());
+			String nacionalidad = (String) modeloH.getValueAt(tbHuespedes.getSelectedRow(), 4);
+			String telefono = (String) modeloH.getValueAt(tbHuespedes.getSelectedRow(), 5);
+			Integer idReserva = Integer.valueOf(modeloH.getValueAt(tbHuespedes.getSelectedRow(), 6).toString());
+			
+			var filaModificada = this.huespedController.modificar(
+					nombre,
+					apellido,
+					fechaNacimiento,
+					nacionalidad,
+					telefono, 
+					idReserva,
+					id);
+			
+			JOptionPane.showMessageDialog(this,
+					String.format("%d Registro modificado con éxito!", filaModificada));
+		}, () -> JOptionPane.showMessageDialog(this,"Por favor, elije un registro"));
 	}
 	
 	private void listarHuespedes() {
@@ -308,6 +369,32 @@ public class Busqueda extends JFrame {
 		}
 	}
 	
+	private void modificarReserva() {
+		if(tieneFilaElegida(tbReservas)) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un registro de reservas");
+			return;
+		}
+		
+		Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn()))
+		.ifPresentOrElse(fila -> {
+			Integer id = Integer.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 0).toString());
+			Date fechaEntrada = Date.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 1).toString());
+			Date fechaSalida = Date.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 2).toString());
+			Float valor = Float.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 3).toString());
+			String formaPago = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 4);
+			
+			var filaModificada = this.reservaController.modificar(
+					fechaEntrada,
+					fechaSalida,
+					valor,
+					formaPago,
+					id
+					);
+			JOptionPane.showMessageDialog(this,
+					String.format("%d Registro modificado con éxito!", filaModificada));
+		}, () -> JOptionPane.showMessageDialog(this,"Por favor, elije un registro"));
+	}
+	
 	private void listarReservas() {
 		List<Reserva> reserva = this.reservaController.listar();
 		
@@ -326,5 +413,4 @@ public class Busqueda extends JFrame {
 		}
 	}
 	
-
 }

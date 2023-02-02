@@ -1,5 +1,6 @@
 package controller;
 
+import java.sql.Date;
 import java.util.List;
 
 import dao.ReservaDAO;
@@ -20,6 +21,10 @@ public class ReservaController {
 
 	public List<Reserva> listar() {
 		return this.reservaDAO.listar();
+	}
+
+	public int modificar(Date fechaEntrada, Date fechaSalida, Float valor, String formaPago, Integer id) {
+		return this.reservaDAO.modificar(fechaEntrada, fechaSalida, valor, formaPago, id);
 	}
  
 }
