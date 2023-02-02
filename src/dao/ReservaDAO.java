@@ -71,6 +71,28 @@ public class ReservaDAO {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public List<Reserva> listar(Integer id) {
+		List<Reserva> reservas = new ArrayList<Reserva>();
+		
+		try {
+			PreparedStatement statement = con.prepareStatement(
+					"SELECT id, fecha_entrada, fecha_salida, valor, forma_pago FROM reservas WHERE id = ?");
+			
+			try(statement) {
+				statement.setInt(1, id);
+				statement.execute();
+				
+				buscarReservas(reservas, statement);
+			}
+			
+			return reservas;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 
 	private void buscarReservas(List<Reserva> reservas, PreparedStatement statement) throws SQLException {
 		ResultSet resultSet = statement.getResultSet();

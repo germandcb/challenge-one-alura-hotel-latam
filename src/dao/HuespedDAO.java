@@ -70,6 +70,27 @@ public class HuespedDAO {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public List<Huesped> listar(String nombre) {
+		List<Huesped> huespedes = new ArrayList<Huesped>();
+		
+		try {
+			PreparedStatement statement = con.prepareStatement(
+					"SELECT id, nombre, apellido, fecha_nacimiento, nacionalidad, telefono, id_reserva FROM huespedes WHERE nombre = ?");
+			
+			try (statement) {
+				statement.setString(1, nombre);
+				statement.execute();
+				
+				buscarHuespedes(huespedes, statement);
+			}
+			
+			return huespedes;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private void buscarHuespedes(List<Huesped> huespedes, PreparedStatement statement) throws SQLException {
 		ResultSet resultSet = statement.getResultSet();

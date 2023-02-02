@@ -233,8 +233,17 @@ public class Busqueda extends JFrame {
 		btnbuscar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
+				
+				if(tbReservas.isVisible()) {
+					limpiarTabla(tbReservas);
+					listarReservaPorId();
+				} else if (tbHuespedes.isVisible()) {
+					limpiarTabla(tbHuespedes);	
+					listarHuespedesPorNombre();
+				}
+							
 			}
+
 		});
 		btnbuscar.setLayout(null);
 		btnbuscar.setBackground(new Color(12, 138, 199));
@@ -257,12 +266,12 @@ public class Busqueda extends JFrame {
 				if(tbReservas.isVisible()) {
 					//System.out.println("Tabla de reservas activa");		
 					modificarReserva();
-					limpiarTabla(modelo);
+					limpiarTabla(tbReservas);
 					listarReservas();
 				} else if (tbHuespedes.isVisible()) {
 					//System.out.println("Tabla de huespedes activa");
 					modificarHuesped();
-					limpiarTabla(modeloH);
+					limpiarTabla(tbHuespedes);
 					listarHuespedes();	 
 				}
 							
@@ -290,12 +299,12 @@ public class Busqueda extends JFrame {
 				if(tbReservas.isVisible()) {
 					//System.out.println("Tabla de reservas activa");		
 					eliminarReserva();
-					limpiarTabla(modelo);
+					limpiarTabla(tbReservas);
 					listarReservas();
 				} else if (tbHuespedes.isVisible()) {
 					//System.out.println("Tabla de huespedes activa");
 					eliminarHuesped();
-					limpiarTabla(modeloH);
+					limpiarTabla(tbHuespedes);
 					listarHuespedes();	 
 				}
 							
@@ -317,8 +326,8 @@ public class Busqueda extends JFrame {
 		setResizable(false);
 	}
 
-	protected void limpiarTabla(DefaultTableModel tmodel) {
-		tmodel.getDataVector().clear();
+	protected void limpiarTabla(JTable tb) {		
+		((DefaultTableModel) tb.getModel()).setRowCount(0);
 	}
 
 	// Código que permite mover la ventana por la pantalla según la posición de "x"
@@ -370,6 +379,34 @@ public class Busqueda extends JFrame {
 	
 	private void listarHuespedes() {
 		List<Huesped> huesped = this.huespedController.listar();
+		
+		try {
+			for(Huesped huespedes : huesped) {
+				modeloH.addRow(new Object[] {
+						huespedes.getId(),
+						huespedes.getNombre(),
+						huespedes.getApellido(),
+						huespedes.getFechaNacimiento(),
+						huespedes.getNacionalidad(),
+						huespedes.getTelefono(),
+						huespedes.getIdReserva()
+				});
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void listarHuespedesPorNombre() {
+		if(txtBuscar.getText().equals("")) {
+			listarHuespedes();
+			JOptionPane.showMessageDialog(this, "Por favor, Ingrese un nombre para buscar");
+			return;
+		}
+		
+		String nombre = (String) txtBuscar.getText();
+		
+		List<Huesped> huesped = this.huespedController.listar(nombre);
 		
 		try {
 			for(Huesped huespedes : huesped) {
@@ -452,6 +489,31 @@ public class Busqueda extends JFrame {
 		}
 	}
 	
+	private void listarReservaPorId() {
+		if(txtBuscar.getText().equals("")) {
+			listarReservas();
+			JOptionPane.showMessageDialog(this, "Por favor, Ingrese el id para buscar");
+			return;
+		}
+		
+		Integer id = Integer.parseInt(txtBuscar.getText()); 
+		List<Reserva> reserva = this.reservaController.listar(id);
+		
+		try {
+			for (Reserva reservas : reserva) {
+				modelo.addRow(new Object[] {
+						reservas.getId(),
+						reservas.getFechaEntrada(),
+						reservas.getFechaSalida(),
+						reservas.getValor(),
+						reservas.getFormaPago()
+				});
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void eliminarReserva() {
 		if(tieneFilaElegida(tbReservas)) {
 			JOptionPane.showMessageDialog(this, "Por favor, elije un registro de reservas");
@@ -471,5 +533,6 @@ public class Busqueda extends JFrame {
                      String.format("%d item eliminado con éxito!", filasModificadas));
          }, () -> JOptionPane.showMessageDialog(this, "Por favor, elije un item"));
 	}
+
 	
 }

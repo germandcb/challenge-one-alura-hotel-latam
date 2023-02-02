@@ -30,5 +30,9 @@ public class ReservaController {
 	public int eliminar(Integer id) {
 		return reservaDAO.eliminar(id);
 	}
+
+	public List<Reserva> listar(Integer id) {
+		return reservaDAO.listar(id);
+	}
  
 }

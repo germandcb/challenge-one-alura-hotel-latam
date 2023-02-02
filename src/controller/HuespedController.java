@@ -32,4 +32,8 @@ public class HuespedController {
 		return huespedDAO.eliminar(id);
 	}
 
+	public List<Huesped> listar(String nombre) {
+		return huespedDAO.listar(nombre);
+	}
+
 }
